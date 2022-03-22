@@ -1,105 +1,148 @@
-let firstOperand = "";
-let secondOperand = "";
-let currentOperation = null;
-const precision = 1000000;
+class Calculator {
+  constructor(previousDisplayField, currentDisplayField, precision) {
+    this.previousDisplayField = previousDisplayField;
+    this.currentDisplayField = currentDisplayField;
+    this.precision = precision;
+    this.clear();
+  }
 
-const curDisplay = document.querySelector(".currentDisplay");
-const prevDisplay = document.querySelector(".prevDisplay");
-const numberBtn = document.querySelectorAll(["[data-number]"]);
-const operatorBtn = document.querySelectorAll(["[data-operator]"]);
-const equalsBtn = document.querySelector("#equals-btn");
-const clearBtn = document.querySelector("#clear-btn");
-const decimalBtn = document.querySelector("#decimal-btn");
+  clear() {
+    this.previousResult = this.currentOperand; // save result
+    this.currentOperand = "";
+    this.previousOperand = "";
+    this.operation = undefined;
+  }
 
-numberBtn.forEach((btn) =>
-  btn.addEventListener("click", () => {
-    curDisplay.textContent += btn.textContent;
-  })
+  delete() {
+    this.currentOperand = this.currentOperand.toString().slice(0, -1);
+  }
+
+  appendNumber(num) {
+    if (num === "." && this.currentOperand.includes(".")) return;
+    this.currentOperand = this.currentOperand.toString() + num.toString();
+  }
+
+  chooseOperation(operation) {
+    if (this.currentOperand === "") return;
+    if (this.previousOperand !== "") {
+      this.operate();
+    }
+    this.operation = operation;
+    this.previousOperand = this.currentOperand;
+    this.currentOperand = "";
+  }
+
+  add(a, b) {
+    return a + b;
+  }
+
+  subtract(a, b) {
+    return a - b;
+  }
+
+  multiply(a, b) {
+    return a * b;
+  }
+
+  divide(a, b) {
+    return a / b;
+  }
+
+  operate() {
+    if (this.operation == null) return;
+    if (this.currentOperand == "0" && this.operation === "÷") {
+      alert("DONT DIVIDE BY 0. DONT!!!!!!!11!");
+      this.clear();
+      return;
+    }
+
+    let result;
+    const a = Number(this.previousOperand);
+    const b = Number(this.currentOperand);
+
+    if (this.operation === "+") {
+      result = this.add(a, b);
+    } else if (this.operation === "-") {
+      result = this.subtract(a, b);
+    } else if (this.operation === "×") {
+      result = this.multiply(a, b);
+    } else if (this.operation === "÷") {
+      result = this.divide(a, b);
+    }
+
+    // Round the result out
+    result = Math.round(result * this.precision) / this.precision;
+
+    this.currentOperand = result;
+    this.operation = undefined;
+    this.previousOperand = "";
+  }
+
+  updateDisplay() {
+    this.currentDisplayField.innerText = this.currentOperand;
+    if (this.operation != null) {
+      this.previousDisplayField.innerText = `${this.previousOperand} ${this.operation}`;
+    } else {
+      this.previousDisplayField.innerText = "";
+    }
+  }
+}
+
+const numberButtons = document.querySelectorAll("[data-number]");
+const operationButtons = document.querySelectorAll("[data-operation]");
+const equalButton = document.querySelector("[data-equals]");
+const deleteButton = document.querySelector("[data-delete]");
+const clearButton = document.querySelector("[data-clear]");
+const scientificButton = document.querySelector("[data-scientific]");
+const previousAnsButton = document.querySelector("[data-previous-ans]");
+const previousDisplayField = document.querySelector("[data-previous-calc]");
+const currentDisplayField = document.querySelector("[data-current-calc]");
+
+const calculator = new Calculator(
+  previousDisplayField,
+  currentDisplayField,
+  (precision = 1000000000)
 );
 
-operatorBtn.forEach((btn) =>
+numberButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    doOperation(btn.textContent);
-  })
-);
-
-clearBtn.addEventListener("click", () => {
-  prevDisplay.textContent = "";
-  curDisplay.textContent = "";
-  firstOperand = "";
-  secondOperand = "";
-  currentOperand = null;
-  decimalBtn.disabled = false;
+    calculator.appendNumber(btn.innerText);
+    calculator.updateDisplay();
+  });
 });
 
-decimalBtn.addEventListener("click", () => {
-  // if its something like ".5", change it to "0.5"
-  if (curDisplay.textContent === "") {
-    curDisplay.textContent += "0";
-  }
-  if (curDisplay.textContent.includes(".")) {
-    return;
-  }
-  curDisplay.textContent += ".";
+operationButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    calculator.chooseOperation(btn.innerText);
+    calculator.updateDisplay();
+  });
 });
 
-equalsBtn.addEventListener("click", () => {
-  evaluate();
+equalButton.addEventListener("click", () => {
+  calculator.operate();
+  calculator.updateDisplay();
 });
 
-const doOperation = (operator) => {
-  if (currentOperation !== null) {
-    evaluate();
+clearButton.addEventListener("click", () => {
+  calculator.clear();
+  calculator.updateDisplay();
+});
+
+deleteButton.addEventListener("click", () => {
+  calculator.delete();
+  calculator.updateDisplay();
+});
+
+previousAnsButton.addEventListener("click", () => {
+  if (calculator.previousResult !== "undefined") {
+    console.log(calculator.previousResult);
+    calculator.currentOperand = calculator.previousResult;
+    calculator.updateDisplay();
   }
-  firstOperand = curDisplay.textContent;
-  currentOperation = operator;
-  prevDisplay.textContent = `${firstOperand} ${currentOperation}`;
-  curDisplay.textContent = "";
-};
+});
 
-// TODO: bug where if i do 9÷÷, it goes through
-const evaluate = () => {
-  if (currentOperation === null) return; // prevent from doing "6=" (if no operator, skip)
-  if (curDisplay.textContent === "0" && currentOperation === "÷") {
-    alert('Stop in the name of "Dividing by Zero"');
-    return;
-  }
-  secondOperand = curDisplay.textContent;
-  curDisplay.textContent =
-    Math.round(
-      operate(firstOperand, secondOperand, currentOperation) * precision
-    ) / precision;
-  prevDisplay.textContent = `${firstOperand} ${currentOperation} ${secondOperand} =`;
-  currentOperation = null;
-};
+scientificButton.addEventListener("click", () => {
+  alert("NOT IMPLEMENTED");
+});
 
-const add = (a, b) => {
-  return a + b;
-};
-
-const subtract = (a, b) => {
-  return a - b;
-};
-
-const multiply = (a, b) => {
-  return a * b;
-};
-
-const divide = (a, b) => {
-  return a / b;
-};
-
-const operate = (a, b, operator) => {
-  a = Number(a);
-  b = Number(b);
-
-  if (operator === "+") {
-    return add(a, b);
-  } else if (operator === "-") {
-    return subtract(a, b);
-  } else if (operator === "×") {
-    return multiply(a, b);
-  } else if (operator === "÷") {
-    return divide(a, b);
-  }
-};
+// TODO: ADD KEYBOARD SUPPORT + ×10^?
