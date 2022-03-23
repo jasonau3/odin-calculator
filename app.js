@@ -145,4 +145,17 @@ scientificButton.addEventListener("click", () => {
   alert("NOT IMPLEMENTED");
 });
 
+// Preload stuff
+function sleep(time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+window.addEventListener("load", () => {
+  const preload = document.querySelector(".preload");
+  // Stop for 2 seconds, then add class
+  sleep(2000).then(() => {
+    preload.classList.add("preload-finish");
+  });
+});
+
 // TODO: ADD KEYBOARD SUPPORT + ×10^?

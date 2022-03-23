@@ -52,3 +52,50 @@ body {
   font-size: 2.5rem;
   color: rgb(255, 255, 255);
 }
+
+/* Preload stuff */
+.preload {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.preload-finish {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* No crazy animation :( */
+
+/* filter to change colour from black to red */
+.preload img {
+  width: 10%;
+  filter: invert(30%) sepia(97%) saturate(7149%) hue-rotate(359deg)
+    brightness(99%) contrast(127%);
+  animation-name: spin;
+  animation-duration: 2000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.preload h3 {
+  position: absolute;
+  top: 60%;
+  color: red;
+  font-size: 30px;
+}
